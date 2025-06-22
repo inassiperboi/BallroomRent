@@ -6,13 +6,14 @@ use App\Filament\Resources\BallroomSpaceResource\Pages;
 use App\Filament\Resources\BallroomSpaceResource\RelationManagers;
 use App\Models\BallroomSpace;
 use Filament\Forms;
+use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-
+use Filament\Tables\Filters\SelectFilter;
 class BallroomSpaceResource extends Resource
 {
     protected static ?string $model = BallroomSpace::class;
@@ -34,6 +35,10 @@ class BallroomSpaceResource extends Resource
                 ->required()
                 ->helperText('Unggah gambar thumbnail ballroom'),
 
+                Forms\Components\TextInput::make('address')
+                ->required()
+                ->maxLength(255)
+                ->helperText('Masukkan alamat lengkap ballroom'),
 
                 Forms\Components\Textarea::make('about')
                 ->required()
@@ -69,7 +74,7 @@ class BallroomSpaceResource extends Resource
                 ->numeric()
                 ->prefix('Days'),
 
-                Forms\Components\Select::make('id_open')
+                Forms\Components\Select::make('is_open')
                 ->options([
                     true => 'Open',
                     false => 'Closed',
@@ -89,9 +94,30 @@ class BallroomSpaceResource extends Resource
         { return $table
             ->columns([
                 //
+                Tables\Columns\TextColumn::make('name')
+                ->searchable(),
+
+                Tables\Columns\ImageColumn::make('thumbnail'),
+
+                Tables\Columns\TextColumn::make('city.name'),
+
+                Tables\Columns\IconColumn::make('is_booked')
+                    ->boolean()
+
+                    ->trueColor('danger')
+                    ->falseColor('success')
+
+                    ->trueIcon('heroicon-o-x-circle')
+
+                    ->falseIcon('heroicon-o-check-circle')
+
+                    ->label('Available'),
             ])
             ->filters([
                 //
+                SelectFilter::make('city_id')
+                    ->relationship('city', 'name')
+                    ->label('City'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

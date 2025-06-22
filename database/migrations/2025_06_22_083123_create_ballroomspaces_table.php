@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('thumbnail');
             $table->string('address');
-            $table->boolean('is_open');
-            $table->boolean('is_booked');
+            $table->boolean('is_open')->default(false);
+            $table->boolean('is_booked')->default(false);
             $table->unsignedInteger('price');
             $table->unsignedInteger('duration');
             $table->text('about' );

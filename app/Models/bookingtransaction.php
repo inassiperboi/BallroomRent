@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BookingTransaction extends Model
 {
+    protected $table = 'bookingtransactions';
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
@@ -51,14 +52,16 @@ class BookingTransaction extends Model
     /**
      * Generate unique booking transaction code
      */
-    public static function generateBookingTrx()
-    {
-        do {
-            $code = 'BLR' . date('Ymd') . strtoupper(substr(md5(time() . rand()), 0, 6));
-        } while (self::where('booking_trx', $code)->exists());
+// App\Models\BookingTransaction.php
+protected static function booted()
+{
+    static::creating(function ($model) {
+        if (empty($model->booking_trx_id)) {
+            $model->booking_trx_id = 'TRX' . now()->format('YmdHis') . rand(100, 999);
+        }
+    });
+}
 
-        return $code;
-    }
 
     /**
      * Scope to get paid bookings only

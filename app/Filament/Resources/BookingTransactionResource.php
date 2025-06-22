@@ -24,6 +24,47 @@ class BookingTransactionResource extends Resource
         return $form
             ->schema([
                 //
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
+
+                // Forms\Components\TextInput::make('booking_trx_id')
+                //     ->required()
+                //     ->maxLength(255)
+                //     ->label('Booking Code'),
+
+                    Forms\Components\TextInput::make('phone_number')
+                    ->required()
+                    ->maxLength(255),
+
+                    Forms\Components\TextInput::make('total_amount')
+                    ->required()
+                    ->numeric()
+                    ->prefix('IDR'),
+
+                    Forms\Components\TextInput::make('duration')
+                    ->required()
+                    ->numeric()
+                    ->suffix('Days'),
+
+                    Forms\Components\DateTimePicker::make('started_at')
+                    ->required(),
+
+                    Forms\Components\DateTimePicker::make('ended_at')
+                    ->required(),
+
+                    Forms\Components\Select::make('is_paid')
+                    ->options([
+                        true => 'Paid',
+                        false => 'Unpaid',
+                    ])
+                    ->required(),
+
+                    Forms\Components\Select::make('ballroomspace_id')
+                    ->relationship('ballroomspace', 'name')
+                    ->required()
+                    ->searchable()
+                    ->preload(),
             ]);
     }
 
@@ -32,9 +73,49 @@ class BookingTransactionResource extends Resource
         return $table
             ->columns([
                 //
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('phone_number')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('booking_trx_id')
+                    ->label('Booking Code')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('ballroomspace.name')
+                    ->label('Ballroom Space')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('total_amount')
+                    ->prefix('IDR')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('duration')
+                    ->suffix('Days')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('started_at')
+                    ->dateTime()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('ended_at')
+                    ->dateTime()
+                    ->sortable(),
+                Tables\Columns\IconColumn::make('is_paid')
+                    ->boolean()
+                    ->label('Payment Status')
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger')
+                    ->sortable(),
             ])
             ->filters([
                 //
+                Tables\Filters\Filter::make('paid')
+                    ->query(fn (Builder $query) => $query->where('is_paid', true))
+                    ->label('Paid Transactions'),
+                Tables\Filters\Filter::make('unpaid')
+                    ->query(fn (Builder $query) => $query->where('is_paid', false))
+                    ->label('Unpaid Transactions'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
